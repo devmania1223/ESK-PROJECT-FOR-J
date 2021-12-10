@@ -1,0 +1,62 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div *ngIf="!editCertificate" class="card" style="margin-top: -15px">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">PRILOGE – SEZNAM ČLANOV</h4>
+                        <p class="card-category">Prikazane so vse možne priloge članov</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row-xl-12">
+                            <mat-form-field class="example-full-width">
+                                <input matInput placeholder="Išči proizvod, certifikat ali subjekt" type="text"
+                                    name="find" #find="ngModel" [(ngModel)]="query" (keydown)="keyDownFunction($event)">
+                            </mat-form-field>
+                            <button mat-raised-button type="submit" matTooltip="Izvede poizvedbo za dane iskalne pogoje"
+                                class="btn btn-info pull-right" (click)="executeQuery()">
+                                <mat-icon>search</mat-icon>
+                                Izvedi iskanje
+                            </button>
+                        </div>
+                        <div flex>
+                            <button [disabled]="!selection || selection.length !== 2" (click)="compare()"
+                                mat-raised-button class="btn btn-info">
+                                <mat-icon>compare</mat-icon>
+                                Primerjava prilog
+                            </button>
+                            <button mat-raised-button class="btn btn-info" matTooltip="Izvoz podatkov v Excel datoteko"
+                                (click)="exportToExcel()">
+                                <mat-icon>import_export</mat-icon>
+                                Izvoz v Excel
+                            </button>
+                        </div>
+                        <div *ngIf="!isComparing" class="table-responsive">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham" [rowData]="page.result"
+                                [gridOptions]="gridOptions" [paginationPageSize]="20"
+                                (rowDoubleClicked)='openCertificate()' (selectionChanged)='onSelectionChanged()'>
+                            </ag-grid-angular>
+                        </div>
+                        <div *ngIf="isComparing" class="table-responsive">
+                            <esk-certifikat-compare [data]="selection" (onClose)="onCloseComparing($event)"
+                                [action]="'PRILOGE_CLAN'">
+                            </esk-certifikat-compare>
+                        </div>
+                    </div>
+                </div>
+                <!-- Certificate form-->
+                <div *ngIf="editCertificate" class="card" style="margin-top: -15px">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">Pregled certifikata {{certifikat.stevilka}}</h4>
+                        <p class="card-category"></p>
+                    </div>
+                    <div class="card-body">
+                        <esk-certifikat-form [selectedValue]="certifikat" (onApply)="closeCertificate($event)"
+                            (onClose)="closeCertificate($event)">
+                        </esk-certifikat-form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

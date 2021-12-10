@@ -1,0 +1,81 @@
+<div class="d-flex flex-column">
+    <div class="d-flex justify-content-between">
+        <div class="w-75">
+            <h3 *ngIf="action === 'CERTIFIKAT'">PRIMERJAVA CERTIFIKATOV</h3>
+            <h3 *ngIf="action === 'PRILOGE_CLAN'">PRIMERJAVA PRILOGE ČLANOV</h3>
+            <h3 *ngIf="action === 'PRILOGE_PROIZVOD'">PRIMERJAVA PRILOGE PROIZVODOV</h3>
+        </div>
+        <div class="w-25">
+            <button mat-raised-button type="submit" matTooltip="Zapre okno" (click)="close()"
+                class="btn btn-info pull-right">
+                Zapri
+            </button>
+        </div>
+    </div>
+    <div class="d-flex w-100">
+        <div class="flex-fill w-50">
+            <mat-card class="flex-fill border-margin">
+                <mat-card-header>
+                    <mat-card-subtitle>
+                        <h4><u><strong>{{data1.stevilka}}</strong></u></h4>
+                    </mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                        <table style="width: 100%;" flex mat-table [(dataSource)]="res1">
+
+                            <!-- Position Column -->
+                            <ng-container matColumnDef="id">
+                                <th mat-header-cell *matHeaderCellDef> Naziv </th>
+                                <td mat-cell *matCellDef="let element"> <strong>{{element.id}}</strong> </td>
+                            </ng-container>
+
+                            <!-- Name Column -->
+                            <ng-container matColumnDef="value">
+                                <th mat-header-cell *matHeaderCellDef>
+                                    <div style="margin-left: 10px;">Vrednost</div>
+                                </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <div style="margin-left: 10px;">{{element.value}} </div>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        </table>
+                </mat-card-content>
+            </mat-card>
+        </div>
+        <div class="flex-fill w-50">
+            <mat-card class="flex-fill border-margin">
+                <mat-card-header>
+                    <mat-card-subtitle>
+                        <h4><u><strong>{{data2.stevilka}}</strong></u></h4>
+                    </mat-card-subtitle>
+                </mat-card-header>
+                <mat-card-content>
+                        <table style="width: 100%;" mat-table [(dataSource)]="res2">
+
+                            <!-- Position Column -->
+                            <ng-container matColumnDef="id">
+                                <th mat-header-cell *matHeaderCellDef> Naziv </th>
+                                <td mat-cell *matCellDef="let element"> <strong>{{element.id}}</strong> </td>
+                            </ng-container>
+
+                            <!-- Name Column -->
+                            <ng-container matColumnDef="value">
+                                <th mat-header-cell *matHeaderCellDef>
+                                    <div style="margin-left: 10px;">Vrednost</div>
+                                </th>
+                                <td mat-cell *matCellDef="let element">
+                                    <div style="margin-left: 10px;">{{element.value}} </div>
+                                </td>
+                            </ng-container>
+
+                            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        </table>
+                </mat-card-content>
+            </mat-card>
+        </div>
+    </div>
+</div>

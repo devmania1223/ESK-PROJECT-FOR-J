@@ -1,0 +1,7 @@
+<mat-form-field>
+  <input *ngIf="readonly" matInput [value]="getText()" [readonly]="true" placeholder="{{title}}" >
+  <mat-select *ngIf="!readonly" [compareWith]="compareObjects"
+   placeholder="{{title}}" [(ngModel)]="value" multiple (selectionChange)="selectionChange($event)">
+    <mat-option *ngFor="let option of page.result" [value]="option">{{valueMapper(option)}}</mat-option>
+  </mat-select>
+</mat-form-field>

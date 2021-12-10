@@ -1,0 +1,26 @@
+<div class="main-content">
+  <div class="container-fluid">
+      <div class="row">
+          <div class="col-md-8">
+              
+          </div>
+          <div class="col-md-4">
+              <div class="card card-profile">
+                  <div class="card-avatar">
+                      <a href="#pablo">
+                          <img class="img" src="./assets/img/faces/user.png" />
+                      </a>
+                  </div>
+                  <div class="card-body">
+                      <h6 class="card-category text-gray">Kontrolna organizacija {{account.orgIme}}</h6>
+                      <h4 class="card-title">{{account.delavecIme}}</h4>
+                      <p class="card-description">
+                          Veljavnost seje do 20.10.2019 14:27:55
+                      </p>
+                      <a (click)="user.logout()" class="btn btn-info btn-round">Ponovna prijava</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+<div flex>
+    <mat-form-field>
+        <input matInput placeholder="Številka" name="name" #name="ngModel" [(ngModel)]="selectedValue.stevilka"
+            required>
+        <mat-error *ngIf="name.invalid && (name.dirty || name.touched)">Obvezen vnos vrednosti</mat-error>
+    </mat-form-field>
+    <mat-form-field floatLabel="always">
+        <mat-label>Status aktivnosti</mat-label>
+        <mat-slide-toggle [(ngModel)]="selectedValue.neaktiven">{{selectedValue.neaktiven ? 'Neaktiven' : 'Aktiven'}}
+        </mat-slide-toggle>
+        <textarea matInput hidden></textarea>
+    </mat-form-field>
+    <div class="control-section">
+        <ejs-richtexteditor  id='defaultRTE' height='400px' [toolbarSettings]='tools' [(ngModel)]="selectedValue.vsebina">
+        </ejs-richtexteditor>
+    </div>
+    <button mat-flat-button (click)="apply()" class="btn btn-info esk_action_button_table"
+        matTooltip="Shrani obstoječi zapis">
+        <mat-icon>check</mat-icon>
+    </button>
+    <button mat-flat-button (click)="cancel()" class="btn btn-danger esk_action_button_table" matTooltip="Prekliči">
+        <mat-icon>remove</mat-icon>
+    </button>
+</div>

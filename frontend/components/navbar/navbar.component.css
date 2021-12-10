@@ -1,0 +1,18 @@
+.container-fluid {
+    background: linear-gradient(
+        60deg
+        , #26c6da, #00acc1);
+        color: white;
+        }
+.container-fluid.test {
+    background: linear-gradient(
+        60deg
+        , rgb(255, 219, 164), rgb(255, 152, 0));
+    color: black;
+}
+.container-fluid.offline {
+    background: linear-gradient(
+        60deg
+        , rgb(255, 164, 164), rgb(255, 0, 0));
+    color: black;
+}

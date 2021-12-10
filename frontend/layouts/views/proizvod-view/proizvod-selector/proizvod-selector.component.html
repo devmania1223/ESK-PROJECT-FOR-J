@@ -1,0 +1,22 @@
+<div flex>
+  <mat-form-field>
+    <mat-label>Shema kakovosti *</mat-label>
+    <input *ngIf="readonly && shema" matInput [readonly]="readonly" [value]="shema.naziv">
+    <input *ngIf="readonly && !shema" matInput [readonly]="readonly">
+    <mat-select *ngIf="!readonly" [compareWith]="compareShema"  (selectionChange)="shemaChanged($event)" [(ngModel)]="shema" name="shema">
+      <mat-option *ngFor="let shema of shemaList" [value]="shema">
+        {{shema.naziv}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <zasciten-proizvod-autocomplete [readonly]="readonly"
+    [title]="'Zaščiten proizvod ali proizvod iz sheme kakovosti IK *'" [(value)]="zascitenProizvod" [(shema)]="shema"
+    (valueChange)="zascitenProizvodChanged($event)">
+  </zasciten-proizvod-autocomplete>
+
+
+  <proizvod-multiple-select [readonly]="readonly" [title]="'Proizvod iz sheme kakovosti - zbiranje podatkov'"
+    [(zascitenProizvod)]="zascitenProizvod" [(value)]="proizvodi" (valueChange)="proizvodiChanged($event)">
+  </proizvod-multiple-select>
+</div>

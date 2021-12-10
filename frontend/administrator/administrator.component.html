@@ -1,0 +1,50 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">Administrator</h4>
+                        <p class="card-category">Administratorska konzola</p>
+                    </div>
+                    <div *ngIf="user.isAuthenticated() && user.hasPermission('CERTIFIKAT_PREG_VSE')" class="card-body">
+                        <!-- Toolbar -->
+                        <div class="row">
+                            <button (click)="import('CERTIFIKAT')" mat-button
+                                [ngClass]="{'text-primary':action === 'CERTIFIKAT' }" class="esk_action_button_table">
+                                <i class="material-icons text-secondary">add_box</i>
+                                Uvozi certifikate v arhiv
+                            </button>
+                            <button (click)="import('PROIZVOD')" [ngClass]="{'text-primary':action === 'PROIZVOD' }"
+                                mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">add_box</i>
+                                Uvozi proizvode v sistem
+                            </button>
+                            <button (click)="import('ZZNAK')" [ngClass]="{'text-primary':action === 'ZZNAK' }"
+                                mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">add_box</i>
+                                Uvozi zaščitne znake
+                            </button>
+                        </div>
+                    </div>
+                    <div *ngIf="showFileUpload" class="container">
+                        <!-- File upload -->
+                        <file-upload *ngIf="action === 'CERTIFIKAT'" class="d-flex flex-column" [action]="'CERTIFIKAT'" (onClose)="onUploadClose($event)"
+                            (onProgressChanged)="onUploadProgressChanged($event)">
+                        </file-upload>
+
+                        <!-- File upload -->
+                        <file-upload *ngIf="action === 'PROIZVOD'" class="d-flex flex-column" [action]="'PROIZVOD'" (onClose)="onUploadClose($event)"
+                            (onProgressChanged)="onUploadProgressChanged($event)">
+                        </file-upload>
+
+                        <!-- File upload -->
+                        <file-upload *ngIf="action === 'ZZNAK'" class="d-flex flex-column" [action]="'ZZNAK'" (onClose)="onUploadClose($event)"
+                            (onProgressChanged)="onUploadProgressChanged($event)">
+                        </file-upload>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

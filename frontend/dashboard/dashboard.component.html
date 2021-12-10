@@ -1,0 +1,274 @@
+<div class="main-content">
+    <div *ngIf="!editCertificate" class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">Iskalnik</h4>
+                        <p class="card-category">Iskalnik certifikatov</p>
+                    </div>
+                    <div class="card-body table-responsive">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <!-- -	Predvidi se iskanje tudi po: Vrsta shem kakovosti«,  številka certifikata, »občina sedeža
+                                nosilca ali člana…dodali bomo še eno polje za kjer bo podroben opis čemu je namenjen iskalnik in po 
+                                katerih kriterijih bo možno iskati, tekst bomo pripravili mi.  -->
+                                <mat-form-field class="example-full-width">
+                                    <input *ngIf="!user.isAuthenticated()" matInput
+                                        placeholder="Išči po številki certifikata, imetniku certifikata ali članu skupine, kraju, proizvodu ali vrsti sheme kakovosti"
+                                        type="text" name="find" #find="ngModel" [(ngModel)]="query"
+                                        (keydown)="keyDownFunction($event)">
+                                    <input *ngIf="user.isAuthenticated()" matInput
+                                        placeholder="Išči po KMG MID, davčni, matični, imetniku, številki certifikata, shemi ali proizvodu"
+                                        type="text" name="find" #find="ngModel" [(ngModel)]="query"
+                                        (keydown)="keyDownFunction($event)">
+                                </mat-form-field>
+                                <button mat-raised-button type="submit" (click)="executeQuery()"
+                                    class="btn btn-info pull-right">
+                                    Izvedi iskanje
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngIf="user.isAuthenticated() && user.hasPermission('CERTIFIKAT_AZURIRAJ')"
+                            class="card-body">
+                            <!-- Toolbar -->
+                            <div class="row">
+                                <button (click)="newCertificate('I')" mat-button class="esk_action_button_table">
+                                    <i class="material-icons text-secondary">add_box</i>
+                                    Nov certifikat
+                                </button>
+                                <button (click)="newCertificate('S')" mat-button class="esk_action_button_table">
+                                    <i class="material-icons text-secondary">person_add</i>
+                                    Nov skupinski certifikat
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngIf="page.result && page.result.length > 0" class="card card-stats">
+                            <div class="table-responsive filterable">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <th colspan="2">Številka certifikata</th>
+                                            <th>Datum izdaje in veljavnost certifikata</th>
+                                            <th>Podatki o proizvodu</th>
+                                            <th>Podatki o nosilcu</th>
+                                            <th *ngIf="user.isAdmin() || !user.isAuthenticated()">Kontrolna organizacija
+                                            </th>
+                                            <th *ngIf="user.isAuthenticated()">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let cert of page.result; let i = index" (click)="setClickedRow(i)"
+                                            [class.active]="i == selectedRow">
+                                            <td style="width: 80px;">
+                                                <button mat-icon-button [disabled]="cert.status==='Vnos'"
+                                                    (click)="downloadCertificate(cert)"
+                                                    class="btn btn-info esk_action_button_table"
+                                                    matTooltip="Prenesi certifikat">
+                                                    <mat-icon>get_app</mat-icon>
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <div *ngIf="cert.tip === 'S'">Skupinski certifikat</div>
+                                                <div *ngIf="cert.tip === 'I'">Individualen certifikat </div>
+                                                <p>{{cert.stevilka}}</p>
+                                            </td>
+                                            <td>
+                                                <div class="col">
+                                                    <p>
+                                                        Datum izdaje: {{cert.datIzdaje | date : 'dd.MM.yyyy'}}
+                                                    </p>
+                                                    <p>
+                                                        Datum veljavnosti: {{cert.datVelj | date : 'dd.MM.yyyy'}}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <p>Shema kakovosti: {{cert.zascitenProizvod.shema.naziv}}</p>
+                                                <p>Proizvod: {{cert.zascitenProizvod.naziv}}</p>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <div *ngIf="cert.imetnik.naziv">{{cert.imetnik.naziv}}</div>
+                                                    <div *ngIf="!cert.imetnik.naziv">{{cert.imetnik.ime}}
+                                                        {{cert.imetnik.priimek}}</div>
+
+                                                    <p>
+                                                        {{cert.imetnik.naslov}}
+                                                    </p>
+                                                    <p>
+                                                        Dejavnost: {{cert.dejavnost.naziv}}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td *ngIf="user.isAdmin() || !user.isAuthenticated()">{{cert.organizacija}}
+                                            </td>
+                                            <td *ngIf="user.isAuthenticated()">
+                                                {{cert.status}}
+                                                <p>
+                                                    <br>
+                                                    <button mat-icon-button (click)="openCertificate(cert)"
+                                                        class="btn btn-info esk_action_button_table"
+                                                        matTooltip="Odpri in uredi certifikat">
+                                                        <mat-icon>launch</mat-icon>
+                                                    </button>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <mat-paginator *ngIf="page.result && page.result.length > 0" [length]="page.resultLength"
+                            [pageSize]="page.resultPerPage" [pageSizeOptions]="[5, 10, 25, 100]"
+                            [(pageIndex)]="page.currentPage" (page)="handlePage($event)">
+                        </mat-paginator>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!user.isAuthenticated() && page.result && page.result.length === 0" class="d-flex">
+            <mat-card class="flex-fill border-margin">
+                <mat-card-header>
+                    <mat-card-title>
+                        <i class="material-icons text-secondary">wb_sunny</i> EVIDENCA SHEM KAKOVOSTI
+                    </mat-card-title>
+                    <mat-card-subtitle>Spletna stran evidence shem kakovosti</mat-card-subtitle>
+                </mat-card-header>
+
+                <mat-card-content>
+                    <div id="Content">
+                        <div class="boxed">
+                            <p>Dobrodošli na
+                                SPLETNEM ISKALNIKU CERTIFIKATOV
+                                za naslednje sheme kakovosti:&nbsp;
+                            </p>
+                            <ul>
+                                <li>zaščitena označba porekla</li>
+                                <li>zaščitena geografska označba</li>
+                                <li>zajamčena tradicionalna posebnost</li>
+                                <li>višja kakovost</li>
+                                <li>izbrana kakovost</li>
+                            </ul>
+                            <p>NAMEN SPLETNEGA ISKALNIKA je, da potrošniki lahko preverijo verodostojnost certifikata,
+                                ki so jih izdale organizacije za kontrolo in certificiranje, za omenjene sheme kakovosti
+                                oziroma proizvede iz omenjenih shem kakovosti. V bazi se nahajajo samo certifikati, ki
+                                so na dan uporabnikove poizvedbe še veljavni. &nbsp;V iskalniku so na voljo tudi
+                                certifikati v pdf obliki, katerih vsebina se uporabniku prikaže z odprtjem
+                                dokumenta.&nbsp;</p>
+                            <p>Objavljeni so certifikati, ki so jih pridelovalcem in predelovalcem izdale imenovane
+                                organizacije za kontrolo in certificiranje, in sicer:</p>
+                            <ul>
+                                <li>Bureau Veritas d.o.o., Linhartova 49a, 1000 LJUBLJANA</li>
+                                <li>Inštitut za kontrolo in certifikacijo v kmetijstvu in gozdarstvu Maribor, Vinarska
+                                    ulica 14, 2000 Maribor</li>
+                                <li>Inštitut za kontrolo in certifikacijo Univerze v Mariboru, Pivola 8, 2311 Hoče</li>
+                            </ul>
+                            <p>Spletni iskalnik &nbsp;omogoča iskanje po:</p>
+                            <ul>
+                                <li>številki certifikata,</li>
+                                <li>nazivu oziroma imenu in priimku nosilca certifikata oziroma člana skupine,</li>
+                                <li>vrsti sheme kakovosti,</li>
+                                <li>proizvodih iz shem kakovosti,</li>
+                                <li>občini sedeža ali naslova nosilca certifikata oziroma člana skupine.</li>
+                            </ul>
+                            <p>Več o shemah kakovosti lahko najdete na spletni strani MKGP</p>
+                            <p>
+                                <a
+                                    href="https://www.gov.si/teme/sheme-kakovosti-in-zasciteni-kmetijski-pridelki-in-zivila/">https://www.gov.si/teme/sheme-kakovosti-in-zasciteni-kmetijski-pridelki-in-zivila/</a>
+                            </p>
+                        </div>
+                    </div>
+                </mat-card-content>
+            </mat-card>
+        </div>
+        <div *ngIf="user.isAuthenticated() && page.result && page.result.length === 0" class="row">
+            <div style="min-width: 340px" class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="fa fa-calendar"></i>
+                        </div>
+                        <p class="card-category">Veljavni certifikati</p>
+                        <h3 class="card-title">{{dashboard.veljavniTotal}}
+                            <small *ngIf="dashboard.veljavniTotal === 0">certifikatov</small>
+                            <small *ngIf="dashboard.veljavniTotal === 1">certifikat</small>
+                            <small *ngIf="dashboard.veljavniTotal === 2">certifikata</small>
+                            <small
+                                *ngIf="dashboard.veljavniTotal === 3 || dashboard.veljavniTotal === 4">certifikati</small>
+                            <small *ngIf="dashboard.veljavniTotal > 4">certifikatov</small>
+                        </h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons">update</i>
+                            <button class="btn btn-link" (click)="navigateToCertifcateView('VELJAVNI')">Trenutni
+                                podatek</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="min-width: 340px" class="col-lg-3 col-md-6 col-sm-6">
+                <div class="card card-stats">
+                    <div class="card-header card-header-secondary card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">remove_from_queue</i>
+                        </div>
+                        <p class="card-category">Certifikati v izteku</p>
+                        <h3 class="card-title">{{dashboard.vIzteku}}
+                            <small *ngIf="dashboard.vIzteku === 0">certifikatov</small>
+                            <small *ngIf="dashboard.vIzteku === 1">certifikat</small>
+                            <small *ngIf="dashboard.vIzteku === 2">certifikata</small>
+                            <small *ngIf="dashboard.vIzteku === 3 || dashboard.vIzteku === 4">certifikati</small>
+                            <small *ngIf="dashboard.vIzteku > 4">certifikatov</small>
+                        </h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons text-danger">warning</i>
+                            <button class="btn btn-link" (click)="navigateToCertifcateView('IZTEK')">Rok 1
+                                mesec</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-6" style="min-width: 340px">
+                <div class="card card-stats">
+                    <div class="card-header card-header-info card-header-icon">
+                        <div class="card-icon">
+                            <i class="material-icons">queue_play_next</i>
+                        </div>
+                        <p class="card-category">Certifikati v obdelavi</p>
+                        <h3 class="card-title">{{dashboard.vnosTotal}}
+                            <small *ngIf="dashboard.vnosTotal === 0">certifikatov</small>
+                            <small *ngIf="dashboard.vnosTotal === 1">certifikat</small>
+                            <small *ngIf="dashboard.vnosTotal === 2">certifikata</small>
+                            <small *ngIf="dashboard.vnosTotal === 3 || dashboard.vnosTotal === 4">certifikati</small>
+                            <small *ngIf="dashboard.vnosTotal > 4">certifikatov</small>
+                        </h3>
+                    </div>
+                    <div class="card-footer">
+                        <div class="stats">
+                            <i class="material-icons text-success">check</i>
+                            <button class="btn btn-link" (click)="navigateToCertifcateView('VNOS')">Moji certifikati v
+                                statusu
+                                Vnos...</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <!-- Certificate form-->
+     <div *ngIf="editCertificate" class="card" style="margin-top: -15px">
+        <div class="card-header card-header-info">
+            <h4 class="card-title">Pregled certifikata {{certifikat.stevilka}}</h4>
+            <p class="card-category"></p>
+        </div>
+        <div class="card-body">
+            <esk-certifikat-form [selectedValue]="certifikat" (onApply)="closeCertificate($event)"
+                (onClose)="closeCertificate($event)">
+            </esk-certifikat-form>
+        </div>
+    </div>
+</div>

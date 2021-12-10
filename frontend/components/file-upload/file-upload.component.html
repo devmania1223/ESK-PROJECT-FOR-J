@@ -1,0 +1,27 @@
+<div class="d-flex flex-column">
+	<div class="my-drop-zone d-flex align-items-center justify-content-center"
+		ng2FileDrop [uploader]="uploader" (click)="fileInput.click()">
+		<div class="d-flex flex-column">
+			<span>
+				<img style="width: 100px; height: 100px"
+					src="./assets/img/file-download-document-excel-spreadsheet-table-xls-44518.png" alt="Excel">
+			</span>
+			<span *ngIf="!uploadSuccess">
+				<h3>Kliknite in izberite ali povlecite in spustite datoteko v polje ...</h3>
+			</span>
+			<span *ngIf="uploadSuccess">
+				<h3>Datoteka uspešno naložena ...</h3>
+			</span>
+			<input type="file" #fileInput ng2FileSelect [uploader]="uploader" style="display: none" />
+		</div>
+	</div>
+	<div *ngIf="error">
+		<pre>{{error}}</pre>
+	</div>
+	<div>
+		<button mat-raised-button type="submit" matTooltip="Zapre okno" (click)="close(null)"
+			class="btn btn-info pull-right">
+			Zapri
+		</button>
+	</div>
+</div>

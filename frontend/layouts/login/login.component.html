@@ -1,0 +1,38 @@
+<div class="main-div">
+  <div class="main-content" style="width: 600px;">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="card" style="margin-top: -15px">
+            <div class="card-header card-header-info">
+              <h4 class="card-title">Prijava</h4>
+              <p class="card-category">Prijava v sistem evidence shem kakovosti</p>
+            </div>
+            <mat-card class="example-card">
+              <mat-card-header>
+                <div class="login-box-header">
+                  <!-- Src image is temporary hosted in image.ibb-->
+                  <img style="width: 250px; height: 50px" src="./assets/img/MKGP.png" />
+                </div>
+              </mat-card-header>
+              <mat-card-content>
+                <form class="example-form">
+                  <mat-form-field class="example-full-width">
+                    <input matInput placeholder="Uporabniško ime" [(ngModel)]="username" name="username" required>
+                  </mat-form-field>
+                  <mat-form-field class="example-full-width">
+                    <input matInput placeholder="Geslo" [(ngModel)]="password" type="password" name="password"
+                      required>
+                  </mat-form-field>
+                </form>
+              </mat-card-content>
+              <button type="submit" (click)="login()" mat-raised-button class="btn btn-info" matTooltip="Prijava v sistem">
+                Prijava
+              </button>
+            </mat-card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

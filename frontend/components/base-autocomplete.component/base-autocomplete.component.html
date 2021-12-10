@@ -1,0 +1,16 @@
+<mat-form-field>
+    <input 
+        [readonly]="readonly"
+        type="text" 
+        placeholder="{{title}}" 
+        aria-label="Number" 
+        matInput 
+        [(ngModel)]="value"
+        [matAutocomplete]="auto"
+        (input)="keyDown($event.target.value)">
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="valueMapper" (optionSelected)="selectedOption($event.option.value)">
+        <mat-option *ngFor="let option of page.result" [value]="option">
+            <span>{{valueMapper(option)}}</span>
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>

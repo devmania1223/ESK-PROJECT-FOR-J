@@ -1,0 +1,97 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card" style="margin-top: -15px">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">Predpripravljena poročila</h4>
+                        <p class="card-category">Seznam predpripravljenih poročil glede na izbrano leto</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="container row" flex>
+                            <mat-form-field style="width: 400px" class="esk_action_button_table">
+                                <mat-label>Poročilo</mat-label>
+                                <mat-select matNativeControl (selectionChange)="resetData()"
+                                    [(ngModel)]="selectedOption" required>
+                                    <mat-option value="RPTALL">Pripravi skupno poročilo</mat-option>
+                                    <mat-option value="RPT1">Št. nosilcev po shemi</mat-option>
+                                    <mat-option value="RPT2">Št. nosilcev po proizvodih</mat-option>
+                                    <mat-option value="RPT3">Št. KMG_MID po vrsti sheme kakovosti</mat-option>
+                                    <mat-option value="RPT4">Št. KMG_MID po proizvodih</mat-option>
+                                    <mat-option value="RPT5">Vsota certificiranih površin po posamezni kmetijski
+                                        rastlini
+                                    </mat-option>
+                                    <mat-option value="RPT6">Skupne letne količine kmetijskih pridelkov</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                            <mat-form-field class="esk_action_button_table">
+                                <input matInput name="year" #username="ngModel" type="number"
+                                    placeholder="Izberite leto" [(ngModel)]="year" required>
+                            </mat-form-field>
+                        </div>
+                        <button *ngIf="selectedOption !== 'RPTALL'" mat-raised-button type="submit" (click)="onSearch()"
+                            matTooltip="Izvede poizvedbo za dane iskalne pogoje" class="btn btn-info pull-right">
+                            <mat-icon>search</mat-icon>
+                            Izvedi iskanje
+                        </button>
+                        <button *ngIf="selectedOption === 'RPTALL'" mat-raised-button class="btn btn-info pull-right"
+                            matTooltip="Pripravi poročilo za izbrano leto" (click)="print()">
+                            <mat-icon>print</mat-icon>
+                            Pripravi poročilo
+                        </button>
+                        <div flex>
+                            <button [disabled]="!page.result || page.result.length === 0 || selectedOption === 'RPTALL'"
+                                mat-raised-button class="btn btn-info" matTooltip="Izvoz količin v Excel datoteko"
+                                (click)="exportToExcel()">
+                                <mat-icon>import_export</mat-icon>
+                                Izvoz v Excel
+                            </button>
+                        </div>
+                        <div *ngIf="selectedOption === 'RPT1' && page.result && page.result.length > 0"
+                            class="table-responsive" style="margin-top: 15px">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham" id="myGrid" name="myGrid"
+                                #myGrid [rowData]="this.page.result" [gridOptions]="gridOptionsRPT1"
+                                [paginationPageSize]="20" (gridReady)="onGridReady($event)">
+                            </ag-grid-angular>
+                        </div>
+                        <div *ngIf="selectedOption === 'RPT2' && page.result && page.result.length > 0"
+                            class="table-responsive" style="margin-top: 15px">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham" [rowData]="this.page.result"
+                                [gridOptions]="gridOptionsRPT2" [paginationPageSize]="20"
+                                (gridReady)="onGridReady($event)">
+                            </ag-grid-angular>
+                        </div>
+                        <div *ngIf="selectedOption === 'RPT3' && page.result && page.result.length > 0"
+                            class="table-responsive" style="margin-top: 15px">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham" [rowData]="this.page.result"
+                                [gridOptions]="gridOptionsRPT3" [paginationPageSize]="20"
+                                (gridReady)="onGridReady($event)">
+                            </ag-grid-angular>
+                        </div>
+                        <div *ngIf="selectedOption === 'RPT4' && page.result && page.result.length > 0"
+                            class="table-responsive" style="margin-top: 15px">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham" [rowData]="this.page.result"
+                                [gridOptions]="gridOptionsRPT4" [paginationPageSize]="20"
+                                (gridReady)="onGridReady($event)">
+                            </ag-grid-angular>
+                        </div>
+                        <div *ngIf="selectedOption === 'RPT5' && page.result && page.result.length > 0"
+                            class="table-responsive" style="margin-top: 15px">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham" [rowData]="this.page.result"
+                                [gridOptions]="gridOptionsRPT5" [paginationPageSize]="20"
+                                (gridReady)="onGridReady($event)">
+                            </ag-grid-angular>
+                        </div>
+                        <div *ngIf="selectedOption === 'RPT6' && page.result && page.result.length > 0"
+                            class="table-responsive" style="margin-top: 15px">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham" [rowData]="this.page.result"
+                                [gridOptions]="gridOptionsRPT6" [paginationPageSize]="20"
+                                (gridReady)="onGridReady($event)">
+                            </ag-grid-angular>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

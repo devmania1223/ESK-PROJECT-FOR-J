@@ -1,0 +1,253 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card" style="margin-top: -15px">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">Seznam certifikatov</h4>
+                        <p *ngIf="user.getAccount().orgIme" class="card-category">Seznam certifikatov do katerih imate
+                            dostop</p>
+                    </div>
+                    <div *ngIf="user.isAuthenticated()" class="card-body">
+                        <!-- Toolbar -->
+                        <div *ngIf="!showForm() && !isComparing" class="row">
+                            <button *ngIf="user.hasPermission('CERTIFIKAT_AZURIRAJ')" (click)="newCertificate('I')"
+                                mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">add_box</i>
+                                Nov certifikat
+                            </button>
+                            <button *ngIf="user.hasPermission('CERTIFIKAT_AZURIRAJ')" (click)="newCertificate('S')"
+                                mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">person_add</i>
+                                Nov skupinski certifikat
+                            </button>
+                            <button *ngIf="user.hasPermission('CERTIFIKAT_AZURIRAJ')"
+                                [disabled]="!(selection && selection.length === 1)" (click)="editCertificate()"
+                                mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">launch</i>
+                                Uredi | Odpri
+                            </button>
+                            <button [disabled]="!selection || selection.length !== 2" (click)="compareCertificates()"
+                                mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">compare</i>
+                                Primerjava certifikatov
+                            </button>
+                            <button *ngIf="user.hasPermission('CERTIFIKAT_IZVOZ')" [disabled]="page.result.length === 0"
+                                (click)="exportToExcel()" mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">import_export</i>
+                                Izvoz v Excel
+                            </button>
+                            <button [disabled]="!(selection && selection.length === 1)" (click)="downloadCertificate()"
+                                mat-button class="esk_action_button_table">
+                                <i class="material-icons text-secondary">get_app</i>
+                                Prenesi certifikat
+                            </button>
+                        </div>
+                        <!-- Search criteria -->
+                        <div *ngIf="!showForm() && !isComparing" class="table-responsive">
+                            <mat-expansion-panel [(expanded)]="showSearchPanel">
+                                <mat-expansion-panel-header>
+                                    <mat-panel-title>
+                                        <i class="material-icons text-secondary">search</i> Iskalni pogoji
+                                    </mat-panel-title>
+                                    <mat-panel-description>
+                                        Tukaj lahko določite vse iskalne kriterije
+                                    </mat-panel-description>
+                                </mat-expansion-panel-header>
+                                <div class="row">
+                                    <!-- CERTIFICATE -->
+                                    <div class="col-xl-4 border-top">
+                                        <mat-card>
+                                            <h4><strong>PODATKI O CERTIFIKATU</strong></h4>
+                                            <mat-card-content>
+                                                <mat-form-field>
+                                                    <input matInput placeholder="Številka certifikata" [(ngModel)]="criteria.stevilka">
+                                                </mat-form-field>
+                                                <string-autocomplete [title]="'Status certifikata'" [(value)]="criteria.status" [(data)]="statusList"></string-autocomplete>
+                                                <!-- Dejavnost -->
+                                                <esk-dejavnost-autocomplete [title]="'Dejavnost'" [(value)]="criteria.dejavnost"></esk-dejavnost-autocomplete>
+                                                <!-- Datum vnosa od-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="pickerDatVnosaOd" placeholder="Datum vnosa od" [(ngModel)]="criteria.datVnosaOd">
+                                                    <mat-datepicker-toggle matSuffix [for]="pickerDatVnosaOd"></mat-datepicker-toggle>
+                                                    <mat-datepicker #pickerDatVnosaOd></mat-datepicker>
+                                                </mat-form-field>
+                                                <!--  Datum vnosa do-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="pickerDatVnosaDo"
+                                                        placeholder="Datum vnosa do" [(ngModel)]="criteria.datVnosaDo">
+                                                    <mat-datepicker-toggle matSuffix [for]="pickerDatVnosaDo">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #pickerDatVnosaDo></mat-datepicker>
+                                                </mat-form-field>
+                                                <!-- Datum veljavnosti od-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="picker"
+                                                        placeholder="Datum veljavnosti od"
+                                                        [(ngModel)]="criteria.datVeljOd">
+                                                    <mat-datepicker-toggle matSuffix [for]="picker">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #picker></mat-datepicker>
+                                                </mat-form-field>
+                                                <!--  Datum veljavnosti do-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="picker1"
+                                                        placeholder="Datum veljavnosti do"
+                                                        [(ngModel)]="criteria.datVeljDo">
+                                                    <mat-datepicker-toggle matSuffix [for]="picker1">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #picker1></mat-datepicker>
+                                                </mat-form-field>
+                                                <!-- Datum zadnje kontrole od-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="picker2"
+                                                        placeholder="Datum zadnje kontrole od"
+                                                        [(ngModel)]="criteria.datKontroleOd">
+                                                    <mat-datepicker-toggle matSuffix [for]="picker2">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #picker2></mat-datepicker>
+                                                </mat-form-field>
+                                                <!-- Datum zadnje kontrole do-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="picker3"
+                                                        placeholder="Datum zadnje kontrole do"
+                                                        [(ngModel)]="criteria.datKontroleDo">
+                                                    <mat-datepicker-toggle matSuffix [for]="picker3">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #picker3></mat-datepicker>
+                                                </mat-form-field>
+                                                <!-- Datum izdaje od-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="picker20"
+                                                        placeholder="Datum izdaje od"
+                                                        [(ngModel)]="criteria.datIzdajeOd">
+                                                    <mat-datepicker-toggle matSuffix [for]="picker20">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #picker20></mat-datepicker>
+                                                </mat-form-field>
+                                                <!-- Datum izdaje do-->
+                                                <mat-form-field>
+                                                    <input matInput [matDatepicker]="picker21"
+                                                        placeholder="Datum izdaje do"
+                                                        [(ngModel)]="criteria.datIzdajeDo">
+                                                    <mat-datepicker-toggle matSuffix [for]="picker21">
+                                                    </mat-datepicker-toggle>
+                                                    <mat-datepicker #picker21></mat-datepicker>
+                                                </mat-form-field>
+                                                <!-- Naziv kontrolorja -->
+                                                <mat-form-field>
+                                                    <input matInput placeholder="Naziv kontrolorja"
+                                                        [(ngModel)]="criteria.kontrolor">
+                                                </mat-form-field>
+                                                <div *ngIf="user.hasPermission('CERTIFIKAT_PREG_VSE')">
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="Kontrolna organizacija"
+                                                            [(ngModel)]="criteria.organizacija">
+                                                    </mat-form-field>
+                                                </div>
+                                                <mat-form-field>
+                                                    <input matInput placeholder="Opomba" [(ngModel)]="criteria.opomba">
+                                                </mat-form-field>
+                                            </mat-card-content>
+                                        </mat-card>
+                                    </div>
+                                    <!-- SUBJEKT -->
+                                    <div class="col-xl-4 border-top">
+                                        <mat-card>
+                                            <h4><strong>PODATKI O NOSILCU/ČLANU</strong></h4>
+                                            <mat-card-content>
+                                                <div>
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="KMG-MID"
+                                                            [(ngModel)]="criteria.subKmgmid">
+                                                    </mat-form-field>
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="Naziv"
+                                                            [(ngModel)]="criteria.subNaziv">
+                                                    </mat-form-field>
+
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="Matična številka"
+                                                            [(ngModel)]="criteria.subMaticna">
+                                                    </mat-form-field>
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="Davčna številka"
+                                                            [(ngModel)]="criteria.subDavcna">
+                                                    </mat-form-field>
+
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="Poštna številka"
+                                                            [(ngModel)]="criteria.subIdPoste">
+                                                    </mat-form-field>
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="Kraj"
+                                                            [(ngModel)]="criteria.subPosta">
+                                                    </mat-form-field>
+                                                    <mat-form-field>
+                                                        <input matInput placeholder="Občina"
+                                                            [(ngModel)]="criteria.subObcina">
+                                                    </mat-form-field>
+                                                </div>
+                                            </mat-card-content>
+                                        </mat-card>
+                                    </div>
+                                    <!-- PROIZVOD -->
+                                    <div class="col-xl-4 border-top">
+                                        <mat-card>
+                                            <h4><strong>PODATKI O PROIZVODU</strong></h4>
+                                            <mat-card-content>
+                                                <proizvod-selector [(zascitenProizvod)]="criteria.zascitenProizvod"
+                                                    [(shema)]="criteria.shema"
+                                                    [(proizvodi)]="criteria.proizvodi"
+                                                    (onProizvodiChanged)="proizvodChanged($event)"
+                                                    (onZascitenProizvodChanged)="zascitenProizvodChanged($event)"
+                                                    (onShemaChanged)="shemaChanged($event.value)">
+                                                </proizvod-selector>
+                                            </mat-card-content>
+                                        </mat-card>
+                                        <!-- INFO PANEL AND BUTTONS -->
+                                        <div class="flex-fill flex-column">
+                                            <div class="flex-fill border-margin">
+                                                <button mat-raised-button type="submit"
+                                                    matTooltip="Izvede poizvedbo za dane iskalne pogoje"
+                                                    class="btn btn-info button-margin" (click)="searchData()">
+                                                    <mat-icon>search</mat-icon>
+                                                    Izvedi iskanje
+                                                </button>
+                                                <button mat-raised-button type="submit" (click)="openResetDialog()"
+                                                    matTooltip="Ponastavi iskalne pogoje" class="btn btn-default">
+                                                    <mat-icon>clear</mat-icon>
+                                                    Počisti
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </mat-expansion-panel>
+                        </div>
+                        <!-- GRID -->
+                        <div *ngIf="!showForm() && !isComparing && page.result.length > 0" class="ag-font-style">
+                            <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham " [rowData]="page.result"
+                                [gridOptions]="gridOptions" [paginationPageSize]="20"
+                                [frameworkComponents]="frameworkComponents"
+                                (rowDoubleClicked)='onRowDoubleClicked($event)'
+                                (selectionChanged)='onSelectionChanged($event)'>
+                            </ag-grid-angular>
+                        </div>
+                        <!-- Certificate form-->
+                        <div *ngIf="showForm() && !isComparing" class="table-responsive">
+                            <esk-certifikat-form [selectedValue]="selectedValue" (onApply)="onApply($event)"
+                                (onClose)="onClose($event)">
+                            </esk-certifikat-form>
+                        </div>
+                        <!-- Certificate compare-->
+                        <div *ngIf="isComparing" class="table-responsive">
+                            <esk-certifikat-compare [data]="selection" (onClose)="onCloseComparing($event)">
+                            </esk-certifikat-compare>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

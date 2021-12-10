@@ -1,0 +1,15 @@
+<div flex>
+  <mat-form-field>
+    <input matInput placeholder="Vnesite naziv sheme kakovosti" name="name" #name="ngModel" [(ngModel)]="selectedValue.naziv"
+      required>
+    <mat-error *ngIf="name.invalid && (name.dirty || name.touched)">Obvezen vnos vrednosti</mat-error>
+  </mat-form-field>
+  <button mat-flat-button (click)="apply()" class="btn btn-info esk_action_button_table"
+  matTooltip="Shrani obstoječi zapis">
+  <mat-icon>check</mat-icon>
+</button>
+  <button mat-flat-button (click)="cancel()" class="btn btn-danger esk_action_button_table"
+    matTooltip="Prekliči">
+    <mat-icon>remove</mat-icon>
+  </button>
+</div>

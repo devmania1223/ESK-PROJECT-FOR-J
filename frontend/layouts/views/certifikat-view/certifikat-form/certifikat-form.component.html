@@ -1,0 +1,348 @@
+<div *ngIf="!unknownError">
+  <!-- Toolbar -->
+  <div *ngIf="!showOpomba && !unknownError" class="row-12">
+    <button *ngIf="this.selectedTab > 0 && selectedValue.tip === 'S'" (click)="exportToExcel()" [disabled]="finishing"
+      mat-raised-button class="btn btn-info" matTooltip="Izvozi podatke o članih v Excel datoteko">
+      Izvozi člane
+    </button>
+    <button *ngIf="this.selectedTab === 0 && selectedValue.status === 'Veljaven'" [disabled]="finishing"
+      mat-raised-button (click)="certificateEdit()" class="btn btn-info" matTooltip="Uredi obstoječi certifikat">
+      Uredi certifikat
+    </button>
+    <button *ngIf="attachmentEnableEditButton()" mat-raised-button (click)="attachmentEdit()" class="btn btn-info"
+      matTooltip="Uredi obstoječo prilogo">
+      Uredi prilogo
+    </button>
+    <button *ngIf="selectedValue.status === 'Veljaven'" mat-raised-button (click)="toggleOpomba()" class="btn btn-info"
+      matTooltip="Razveljavitev veljavnega certifikata">
+      Razveljavi certifikat
+    </button>
+    <button *ngIf="selectedValue.status === 'Veljaven'" mat-raised-button (click)="downloadCertificate()"
+      class="btn btn-info" matTooltip="Prenesi certifikat na lokalni računalnik">
+      Prenesi certifikat
+    </button>
+    <button *ngIf="selectedValue.status === 'Vnos'" [disabled]="finishing" mat-raised-button
+      (click)="refreshCertificate()" class="btn btn-info"
+      matTooltip="Masovno osveževanje podatkov o članih in subjektih. Podatki se pridobijo iz uradnih evidenc in nadomestijo trenutne podatke.">
+      Osveževanje iz evidenc
+    </button>
+    <button mat-raised-button [disabled]="finishing"
+      *ngIf="(selectedValue && selectedValue.id && selectedValue.id > 0 && selectedValue.status === 'Vnos')"
+      (click)="certificateFinish()" class="btn btn-info" matTooltip="Zaključi certifikat">
+      Zaključi
+    </button>
+    <button mat-raised-button [disabled]="finishing" *ngIf="attachmentEnableSaveButton()" (click)="certificateFinish()"
+      class="btn btn-info" matTooltip="Zaključi certifikat">
+      Zaključi prilogo
+    </button>
+    <button mat-raised-button [disabled]="finishing"
+      *ngIf="selectedValue.status === 'Vnos' && canDelete && selectedValue.id && selectedValue.id > 0"
+      (click)="certificateDelete()" class="btn btn-danger" matTooltip="Izbriše certifikat v statusu Vnos">
+      Izbriši certifikat
+    </button>
+    <button mat-raised-button (click)="certificateCancel()" class="btn btn-light pull-right"
+      matTooltip="Prekliče vse trenutne popravke na certifikatu">
+      Izhod
+    </button>
+    <button mat-raised-button [disabled]="finishing" *ngIf="attachmentEnableSaveButton()" (click)="certificateSave()"
+      class="btn btn-info pull-right" matTooltip="Shrani prilogo">
+      <mat-icon>done</mat-icon>
+      Shrani prilogo
+    </button>
+    <button mat-raised-button [disabled]="finishing" *ngIf="selectedValue.status === 'Vnos'" (click)="certificateSave()"
+      class="btn btn-info pull-right" matTooltip="Shrani certifikat">
+      <mat-icon>done</mat-icon>
+      Shrani
+    </button>
+  </div>
+  <!-- Upload component -->
+  <file-upload *ngIf="showFileUpload && !showOpomba" (onClose)="closeImportFile()" [(title)]="uploadTitle"
+    [action]="'CLAN'" (onResponse)="refreshMembers($event)">
+  </file-upload>
+  <!-- Tab group -->
+  <mat-tab-group *ngIf="!showOpomba" (selectedTabChange)="onTabClick($event)">
+    <!--Podatki o certifikatua -->
+    <mat-tab label="Podatki o certifikatu">
+      <div class="row tab-box">
+        <!-- Podatki o certifikatu -->
+        <div class="col col-lg-6">
+          <mat-card class="mat-card-box">
+            <h4><strong>PODATKI O CERTIFIKATU</strong></h4>
+            <mat-card-content>
+              <div *ngIf="selectedValue.status !== 'Razveljavljen'" style="color: royalblue">
+                <strong> STATUS CERTIFIKATA </strong>
+                <h4 class="pull-right"><strong>{{selectedValue.status | uppercase}}</strong></h4>
+              </div>
+              <div *ngIf="selectedValue.status === 'Razveljavljen'" style="color: red">
+                <strong> STATUS CERTIFIKATA </strong>
+                <h4 class="pull-right"><strong>{{selectedValue.status | uppercase}}</strong></h4>
+              </div>
+              <div class="striped-border"></div>
+              <!-- Števika certifikata -->
+              <mat-form-field>
+                <input matInput [readonly]="selectedValue.status !== 'Vnos'" placeholder="Številka certifikata"
+                  name="stevilka" #stevilka="ngModel" [(ngModel)]="selectedValue.stevilka" required>
+                <mat-error *ngIf="stevilka.invalid  && (stevilka.dirty || stevilka.touched)">Obvezen vnos vrednosti
+                </mat-error>
+              </mat-form-field>
+              <!-- Primarna dejavnost -->
+              <mat-form-field>
+                <mat-label>Primarna dejavnost *</mat-label>
+                <input *ngIf="selectedValue.status !== 'Vnos' && selectedValue.dejavnost" matInput [readonly]="true" [value]="selectedValue.dejavnost.naziv">
+                <input *ngIf="selectedValue.status !== 'Vnos' && !selectedValue.dejavnost" matInput [readonly]="true">
+                <mat-select *ngIf="selectedValue.status === 'Vnos'" [compareWith]="compareDejavnost" [(ngModel)]="selectedValue.dejavnost"
+                  name="dejavnost">
+                  <mat-option *ngFor="let dejavnost of dejavnosti" [value]="dejavnost">
+                    {{dejavnost.naziv}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <!-- Ostale dejavnosti -->
+              <esk-dejavnost-multiple-select [readonly]="selectedValue.status !== 'Vnos'" [title]="'Ostale dejavnosti'"
+                [(value)]="selectedValue.dejavnosti">
+              </esk-dejavnost-multiple-select>
+              <!-- Datum zadnje kontrole-->
+              <mat-form-field>
+                <input matInput [readonly]="selectedValue.status !== 'Vnos'" [matDatepicker]="picker"
+                  placeholder="Datum zadnje kontrole" [(ngModel)]="selectedValue.datKontrole">
+                <mat-datepicker-toggle [disabled]="selectedValue.status !== 'Vnos'" matSuffix [for]="picker">
+                </mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+              <!-- Naziv kontrolorja -->
+              <mat-form-field>
+                <input matInput [readonly]="selectedValue.status !== 'Vnos'" placeholder="Naziv kontrolorja"
+                  name="kontrolor" #kontrolor="ngModel" [(ngModel)]="selectedValue.kontrolor">
+              </mat-form-field>
+              <!-- Certifikacijski organ -->
+              <string-autocomplete [readonly]="selectedValue.status !== 'Vnos' || !fullPermission"
+                [title]="'Certifikacijski organ *'" [(value)]="selectedValue.organizacija" [data]="certOrganList">
+              </string-autocomplete>
+              <!-- Datum izdaje-->
+              <mat-form-field>
+                <input matInput [readonly]="selectedValue.status !== 'Vnos'" [matDatepicker]="picker2"
+                  placeholder="Datum izdaje *" [(ngModel)]="selectedValue.datIzdaje">
+                <mat-datepicker-toggle [disabled]="selectedValue.status !== 'Vnos'" matSuffix [for]="picker2">
+                </mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+              </mat-form-field>
+              <!-- Datum veljavnosti-->
+              <mat-form-field>
+                <input matInput [readonly]="selectedValue.status !== 'Vnos'" [matDatepicker]="picker3"
+                  placeholder="Datum veljavnosti *" [(ngModel)]="selectedValue.datVelj">
+                <mat-datepicker-toggle [disabled]="selectedValue.status !== 'Vnos'" matSuffix [for]="picker3">
+                </mat-datepicker-toggle>
+                <mat-datepicker #picker3></mat-datepicker>
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        <!-- Podatki o proizvodu in nosilcu certifikata -->
+        <!-- Nosilec -->
+        <div class="col col-lg-6">
+          <mat-card class="mat-card-box">
+            <h4><strong>PODATKI O SUBJEKTU</strong></h4>
+            <mat-card-content>
+              <!-- Nosilec -->
+              <esk-subjekt-autocomplete [readonly]="selectedValue.status !== 'Vnos'" [title]="'Nosilec *'"
+                [(value)]="selectedValue.imetnik">
+              </esk-subjekt-autocomplete>
+              <!-- Telefonska in email -->
+              <mat-form-field>
+                <input [readonly]="selectedValue.status !== 'Vnos'" matInput placeholder="Telefonska številka"
+                  name="telSt" #telSt="ngModel" [(ngModel)]="selectedValue.telSt">
+              </mat-form-field>
+              <mat-form-field>
+                <input [readonly]="selectedValue.status !== 'Vnos'" matInput placeholder="Elektronski naslov"
+                  name="email" #email="ngModel" [(ngModel)]="selectedValue.email">
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+          <!-- Proizvod -->
+          <mat-card class="mat-card-box">
+            <h4><strong>PODATKI O PROIZVODU</strong></h4>
+            <mat-card-content>
+              <proizvod-selector [readonly]="selectedValue.status !== 'Vnos'"
+                [(zascitenProizvod)]="selectedValue.zascitenProizvod"
+                (onZascitenProizvodChanged)="zascitenProizvodChanged($event)"
+                [(proizvodi)]="this.selectedValue.certifikatProizvod" (onProizvodiChanged)="proizvodiChanged($event)">
+              </proizvod-selector>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </mat-tab>
+    <!-- PRILOGE PROIZVODOV -->
+    <mat-tab label="Seznam certificiranih proizvodov">
+      <div flex style="margin: 25px">
+        <!-- Števika priloge proizvoda -->
+        <div class="d-flex justify-content-between">
+          <mat-form-field class="w-25">
+            <input [readonly]="certifikatPrilogaProizvod.priloga.status !== 'Vnos'" matInput
+              placeholder="Številka priloge *" [(ngModel)]="certifikatPrilogaProizvod.priloga.stevilka">
+          </mat-form-field>
+          <div class="w-50">
+            <div *ngIf="certifikatPrilogaProizvod.priloga.status !== 'Razveljavljen'" style="color: royalblue">
+              <strong> STATUS PRILOGE </strong>
+              <h4 class="pull-right"><strong>{{certifikatPrilogaProizvod.priloga.status | uppercase}}</strong></h4>
+            </div>
+            <div *ngIf="certifikatPrilogaProizvod.priloga.status === 'Razveljavljen'" style="color: red">
+              <strong> STATUS CERTIFIKATA </strong>
+              <h4 class="pull-right"><strong>{{certifikatPrilogaProizvod.priloga.status | uppercase}}</strong></h4>
+            </div>
+            <div class="striped-border"></div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <!-- Datum izdaje-->
+          <mat-form-field class="w-25">
+            <input matInput [readonly]="certifikatPrilogaProizvod.priloga.status !== 'Vnos'" [matDatepicker]="picker6"
+              placeholder="Datum izdaje priloge *" [(ngModel)]="certifikatPrilogaProizvod.priloga.datIzdaje">
+            <mat-datepicker-toggle [disabled]="certifikatPrilogaProizvod.priloga.status !== 'Vnos'" matSuffix
+              [for]="picker6">
+            </mat-datepicker-toggle>
+            <mat-datepicker #picker6></mat-datepicker>
+          </mat-form-field>
+          <!-- Datum veljavnosti-->
+          <mat-form-field class="w-25">
+            <input matInput [readonly]="certifikatPrilogaProizvod.priloga.status !== 'Vnos'" [matDatepicker]="picker7"
+              placeholder="Datum veljavnosti priloge *" [(ngModel)]="certifikatPrilogaProizvod.priloga.datVelj">
+            <mat-datepicker-toggle [disabled]="certifikatPrilogaProizvod.priloga.status !== 'Vnos'" matSuffix
+              [for]="picker7">
+            </mat-datepicker-toggle>
+            <mat-datepicker #picker7></mat-datepicker>
+          </mat-form-field>
+        </div>
+      </div>
+      <!-- <div class="d-flex" style="border: 1px solid lightgrey;border-radius: 3px;">
+        <textarea [readonly]="certifikatPrilogaProizvod.priloga.status !== 'Vnos'"
+          style="resize:vertical;margin: 10px;overflow-y: scroll;" (keyup)="autogrow()"
+          placeholder="Vpišite ali prilepite tekst" rows="20" (click)="autogrow()" type="text" class="form-control"
+          id="description" [(ngModel)]="certifikatPrilogaProizvod.priloga.vsebina" #description="ngModel"
+          name="description"></textarea>
+      </div> -->
+    </mat-tab>
+    <!-- PRILOGE ČLANOV -->
+    <mat-tab *ngIf="selectedValue.tip === 'S'" label="Seznam članov skupine">
+      <div style="margin: 25px">
+        <!-- Števika odločbe -->
+        <div class="d-flex justify-content-between">
+          <mat-form-field class="w-25">
+            <input [readonly]="certifikatPrilogaClan.priloga.status !== 'Vnos'" matInput
+              placeholder="Številka priloge *" [(ngModel)]="certifikatPrilogaClan.priloga.stevilka">
+          </mat-form-field>
+          <div class="w-50">
+            <div *ngIf="certifikatPrilogaClan.priloga.status !== 'Razveljavljen'" style="color: royalblue">
+              <strong> STATUS PRILOGE </strong>
+              <h4 class="pull-right"><strong>{{certifikatPrilogaClan.priloga.status | uppercase}}</strong></h4>
+            </div>
+            <div *ngIf="certifikatPrilogaClan.priloga.status === 'Razveljavljen'" style="color: red">
+              <strong> STATUS PRILOGE </strong>
+              <h4 class="pull-right"><strong>{{certifikatPrilogaClan.priloga.status | uppercase}}</strong></h4>
+            </div>
+            <div class="striped-border"></div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <!-- Datum izdaje-->
+          <mat-form-field class="w-25">
+            <input [readonly]="certifikatPrilogaClan.priloga.status !== 'Vnos'" matInput [matDatepicker]="picker4"
+              placeholder="Datum izdaje priloge *" [(ngModel)]="certifikatPrilogaClan.priloga.datIzdaje">
+            <mat-datepicker-toggle [disabled]="certifikatPrilogaClan.priloga.status !== 'Vnos'" matSuffix
+              [for]="picker4">
+            </mat-datepicker-toggle>
+            <mat-datepicker #picker4></mat-datepicker>
+          </mat-form-field>
+          <!-- Datum veljavnosti-->
+          <mat-form-field class="w-25">
+            <input [readonly]="certifikatPrilogaClan.priloga.status !== 'Vnos'" matInput [matDatepicker]="picker5"
+              placeholder="Datum veljavnosti priloge *" [(ngModel)]="certifikatPrilogaClan.priloga.datVelj">
+            <mat-datepicker-toggle [disabled]="certifikatPrilogaClan.priloga.status !== 'Vnos'" matSuffix
+              [for]="picker5">
+            </mat-datepicker-toggle>
+            <mat-datepicker #picker5></mat-datepicker>
+          </mat-form-field>
+        </div>
+        <div>
+          <button [disabled]="certifikatPrilogaClan.priloga.status !== 'Vnos'" (click)="newChild()" mat-raised-button
+            class="btn btn-info float-left" style="margin-bottom: 25px" matTooltip="Dodaj nov zapis v seznam">
+            <mat-icon>create_new_folder</mat-icon>
+            Nov član
+          </button>
+          <button *ngIf="selectedValue.tip === 'S' && certifikatPrilogaClan.priloga.status === 'Vnos'" mat-raised-button
+            (click)="importFile('Uvoz članov iz Excel datoteke')" class="btn btn-info" style="margin-bottom: 25px"
+            matTooltip="Uvoz članov iz Excel datoteke">
+            Uvozi člane
+          </button>
+          <button [disabled]="certifikatPrilogaClan.priloga.status !== 'Vnos'" (click)="removeChilds()"
+            [disabled]="!selection || selection.length === 0" mat-raised-button class="btn btn-danger float-right"
+            style="margin-bottom: 25px" matTooltip="Izbriše označene zapise">
+            <mat-icon>delete_outline</mat-icon>
+            Izbriši
+          </button>
+        </div>
+        <div class="card card-stats" *ngIf="manageChild">
+          <div class="d-flex flex-column">
+            <div class="row" class="esk_action_button_table">
+              <esk-subjekt-autocomplete [title]="'Vnesite KMG-MID, naziv, matično ali davčno številko zavezanca'"
+                [(value)]="selectedChild.clan">
+              </esk-subjekt-autocomplete>
+            </div>
+            <div class="row" class="esk_action_button_table">
+              <button [(disabled)]="!selectedChild || !selectedChild.clan || !selectedChild.clan.subjId" mat-flat-button
+                (click)="applyChild()" class="btn btn-info esk_action_button_table" matTooltip="Shrani obstoječi zapis">
+                <mat-icon>check</mat-icon>
+              </button>
+              <button mat-flat-button (click)="cancelChild()" class="btn btn-danger esk_action_button_table"
+                matTooltip="Prekliči">
+                <mat-icon>remove</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card card-stats"
+          *ngIf="certifikatPrilogaClan.priloga.prilogaClan.length > 0 && (!this.selectedChild || !manageChild)">
+          <ag-grid-angular domLayout="autoHeight" class="ag-theme-balham"
+            [rowData]="certifikatPrilogaClan.priloga.prilogaClan" [gridOptions]="gridOptions" [paginationPageSize]="20"
+            (selectionChanged)='onSelectionChanged($event)'>
+          </ag-grid-angular>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <div *ngIf="showOpomba" class="row-12">
+    <div class="d-flex" style="border: 1px solid lightgrey;border-radius: 3px;">
+      <textarea style="resize:vertical;margin: 10px;overflow-y: scroll;" (keyup)="autogrow()"
+        placeholder="Vpišite opombo ob razveljavitvi certifikata" rows="20" (click)="autogrow()" type="text"
+        class="form-control" id="description" [(ngModel)]="selectedValue.opomba" #description="ngModel"
+        name="description">
+    </textarea>
+    </div>
+    <div class="flex-fill flex-column">
+      <div class="flex-fill border-margin">
+        <button mat-raised-button type="submit" [disabled]="!selectedValue.opomba || selectedValue.opomba.trim() === ''"
+          matTooltip="Razveljavi certifikat" class="btn btn-info button-margin" (click)="certificateCancelation(true)">
+          Razveljavi
+        </button>
+        <button mat-raised-button type="submit" (click)="clearOpomba()" matTooltip="Prekliče akcijo"
+          class="btn btn-default">
+          <mat-icon>clear</mat-icon>
+          Prekliči
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="unknownError">
+  <img style="width: 100px; height: 100px" src="./assets/img/error.png" alt="Napaka pri pridobivanju podatkov">
+</div>
+<div *ngIf="this.selectedTab === 1">
+  <ejs-richtexteditor [readonly]="certifikatPrilogaProizvod.priloga.status !== 'Vnos'" id='defaultRTE2' height='400px'
+    [(value)]='certifikatPrilogaProizvod.priloga.vsebina' [toolbarSettings]='tools'>
+  </ejs-richtexteditor>
+</div>
+<div *ngIf="debugMode">
+  {{selectedValue | json}}
+</div>

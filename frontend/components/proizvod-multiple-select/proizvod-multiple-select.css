@@ -1,0 +1,9 @@
+@import url("../../app.component.css");
+
+.readonly-wrapper {
+    cursor: not-allowed;
+}
+
+.readonly-wrapper .readonly-block {
+    pointer-events: none;
+}

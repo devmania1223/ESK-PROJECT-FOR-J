@@ -1,0 +1,74 @@
+<div class="main-content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card" style="margin-top: -15px">
+                    <div class="card-header card-header-info">
+                        <h4 class="card-title">Seznam shem kakovosti</h4>
+                        <p class="card-category">Prikazane so vse veljavne sheme kakovosti</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row-xl-12">
+                            <mat-form-field class="example-full-width">
+                                <input matInput placeholder="Išči shemo kakovosti" type="text">
+                            </mat-form-field>
+                            <button mat-raised-button type="submit" matTooltip="Izvede poizvedbo za dane iskalne pogoje"
+                                class="btn btn-info pull-right">
+                                <mat-icon>search</mat-icon>
+                                Izvedi iskanje
+                            </button>
+                        </div>
+                        <div>
+                            <button mat-raised-button class="btn btn-info" (click)="addNewItem()" matTooltip="Dodaj nov zapis v seznam">
+                                <mat-icon>create_new_folder</mat-icon>
+                                Nov zapis
+                            </button>
+                        </div>
+                        <div class="card card-stats">
+                            <div class="table-responsive filterable" *ngIf="page.result.length > 0">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th class="esk_action_column"></th>
+                                            <th>Naziv</th>
+                                            <th class="esk_action_column">
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let item of page.result; let i = index" (click)="setClickedRow(i)"
+                                            [class.active]="i == selectedRow">
+                                            <td>
+                                                <button *ngIf="!item.open" mat-icon-button (click)="editItem(item)"
+                                                    class="btn btn-info esk_action_button_table"
+                                                    matTooltip="Popravi obstoječi zapis">
+                                                    <mat-icon>edit</mat-icon>
+                                                </button>
+                                            </td>
+                                            <td *ngIf="!item.open">{{item.naziv}}</td>
+                                            <td *ngIf="item.open">
+                                                <esk-shema-form (onApply)="onApply($event)" (onClose)="onClose($event)" [selectedValue]="item"></esk-shema-form>
+                                            </td>
+                                            <td>
+                                                <button *ngIf="!item.open" mat-icon-button
+                                                    (click)="deleteItemMaterial(item)"
+                                                    class="btn btn-danger pull-right esk_action_button_table"
+                                                    matTooltip="Izbriši obstoječi zapis">
+                                                    <mat-icon>delete_outline</mat-icon>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <mat-paginator [length]="page.resultLength" [pageSize]="page.resultPerPage"
+                            [pageSizeOptions]="[5, 10, 25, 100]" [(pageIndex)]="page.currentPage"
+                            (page)="handlePage($event)">
+                        </mat-paginator>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

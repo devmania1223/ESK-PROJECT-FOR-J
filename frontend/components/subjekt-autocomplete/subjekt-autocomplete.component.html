@@ -1,0 +1,13 @@
+<mat-form-field>
+    <input [readonly]="readonly" type="text" placeholder="{{title}}" aria-label="Number" matInput [(ngModel)]="value"
+        [matAutocomplete]="auto" (keydown)="keyDownFunction($event)">
+    <button *ngIf="!readonly && value"  mat-button matSuffix mat-icon-button class="red action-button" aria-label="Clear" (click)="reset()">
+        <mat-icon>close</mat-icon>
+    </button>
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="valueMapper"
+        (optionSelected)="selectedOption($event.option.value)">
+        <mat-option *ngFor="let option of page.result" [value]="option">
+            <span>{{valueMapper(option)}}</span>
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>

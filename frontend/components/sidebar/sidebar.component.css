@@ -1,0 +1,12 @@
+.sidebar-wrapper.test .nav li.active > a.nav-link {
+    color: black;
+    background-color: rgb(255, 178, 63) !important;
+    box-shadow: 0 4px 20px 0px rgb(0 0 0 / 14%), 0 7px 10px -5px rgb(255 178 63 / 40%) !important;
+	}
+
+.sidebar-wrapper.offline .nav li.active > a.nav-link {
+    color: black;
+    background-color: rgb(255, 63, 63) !important;
+    box-shadow: 0 4px 20px 0px rgb(0 0 0 / 14%), 0 7px 10px -5px rgb(255 178 63 / 40%) !important;
+    }
+    

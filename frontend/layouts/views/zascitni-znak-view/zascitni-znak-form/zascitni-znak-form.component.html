@@ -1,0 +1,91 @@
+<div class="flex-column">
+  <mat-card class="flex-fill border-margin">
+    <mat-card-header>
+      <mat-card-title>
+        <i class="material-icons text-secondary">content_paste</i>
+      </mat-card-title>
+      <mat-card-subtitle>Podatki o zaščitenem znaku</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <!-- Številka zaščitnega znaka -->
+      <mat-form-field>
+        <input matInput placeholder="Številka *" name="stevilkaProizvoda" #stevilkaProizvoda="ngModel"
+          [(ngModel)]="selectedValue.stevilka">
+      </mat-form-field>
+      <esk-subjekt-autocomplete [title]="'Nosilec *'" [(value)]="selectedValue.imetnik"></esk-subjekt-autocomplete>
+      <!-- Shema zaščitni znakov -->
+      <string-autocomplete [title]="'Shema zaščitnih znakov *'" [(value)]="selectedValue.zzShema" [data]="zzShemaList">
+      </string-autocomplete>
+      <!-- Naziv proizvoda -->
+      <mat-form-field>
+        <input matInput placeholder="Naziv proizvoda (prosti text) *" name="nazivProizvoda" #nazivProizvoda="ngModel"
+          [(ngModel)]="selectedValue.nazivProizvoda">
+      </mat-form-field>
+      <!-- Števika odločbe -->
+      <mat-form-field class="w-50">
+        <input matInput placeholder="Številka odločbe *" name="stOdl" #stOdl="ngModel" [(ngModel)]="selectedValue.stOdl"
+          required>
+        <mat-error *ngIf="stOdl.invalid && (stOdl.dirty || stOdl.touched)">Obvezen vnos vrednosti</mat-error>
+      </mat-form-field>
+      <!-- Datum odločbe -->
+      <mat-form-field>
+        <input matInput [matDatepicker]="picker" placeholder="Datum odločbe *" [(ngModel)]="selectedValue.datOdl">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+      <!-- Certifikacijski organ -->
+      <string-autocomplete [title]="'Certifikacijski organ *'" [(value)]="selectedValue.certOrgan"
+        [data]="certOrganList">
+      </string-autocomplete>
+      <mat-form-field floatLabel="always">
+        <mat-label>Status aktivnosti</mat-label>
+        <mat-slide-toggle [(ngModel)]="selectedValue.neaktiven">{{selectedValue.neaktiven ? 'Neaktiven' : 'Aktiven'}}
+        </mat-slide-toggle>
+        <textarea matInput hidden></textarea>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+</div>
+<div class="d-flex flex-fill flex-column border-margin">
+  <div>
+    <button mat-raised-button (click)="cancel()" type="submit" matTooltip="Prekini ažuriranje zaščitnega znaka"
+      class="btn btn-light pull-right border-margin">
+      Prekini
+    </button>
+    <button mat-raised-button (click)="apply()" class="btn btn-info pull-right border-margin"
+      matTooltip="Shrani ažuriranje zaščitnega znaka">
+      <mat-icon>done</mat-icon>
+      Shrani
+    </button>
+  </div>
+</div>
+<!-- Podatki o proizvodu -->
+<!--<div class="flex-column w-50">
+    <div class="flex-fill">
+      <mat-card class="flex-fill border-margin">
+        <mat-card-header>
+          <mat-card-title>
+            <i class="material-icons text-secondary">dns</i>
+          </mat-card-title>
+          <mat-card-subtitle>Podatki o proizvodu</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="d-flex flex-fill flex-column">
+            <proizvod-selector 
+              [(zascitenProizvod)]="selectedValue.zascitenProizvod"
+              (onZascitenProizvodChanged)="zascitenProizvodChanged($event)"
+              [(proizvodi)]="selectedValue.zascitniznakProizvod" 
+              (onProizvodiChanged)="proizvodiChanged($event)">
+            </proizvod-selector>
+            <div>
+              <button mat-raised-button type="submit" (click)="resetProduct()"
+                matTooltip="Odstrani proizvod iz zaščitnega znaka">
+                <mat-icon>clear</mat-icon>
+                Počisti proizvod
+              </button>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div> 
+  </div>-->

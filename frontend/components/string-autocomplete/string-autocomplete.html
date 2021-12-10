@@ -1,0 +1,15 @@
+<mat-form-field>
+    <input [readonly]="readonly" type="text" 
+        placeholder="{{title}}" 
+        aria-label="Number" 
+        matInput
+        [(ngModel)]="value"
+        [matAutocomplete]="auto"
+        (click)="onFind()"
+        (input)="onFind()">
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedOption($event.option.value)">
+        <mat-option *ngFor="let option of filteredData" [value]="option">
+            {{option}}
+        </mat-option>
+    </mat-autocomplete>
+</mat-form-field>

@@ -1,0 +1,37 @@
+<div flex>
+  <string-autocomplete [title]="'Shema kakovosti *'" [(value)]="selectedValue.zascitenProizvod.shema.naziv"
+    [data]="shemaResult" (valueChange)="shemaChanged()">
+  </string-autocomplete>
+
+  <string-autocomplete [title]="'Zaščiten proizvod ali proizvod iz sheme kakovosti IK *'"
+    [(value)]="selectedValue.zascitenProizvod.naziv" [(data)]="zascitenProizvodResult"
+    (valueChange)="zascitenProizvodChanged()">
+  </string-autocomplete>
+
+  <string-autocomplete [title]="'Proizvod iz sheme kakovosti - zbiranje podatkov'" [(value)]="selectedValue.naziv">
+  </string-autocomplete>
+
+  <esk-zakon-autocomplete [title]="'Zakonska podlaga'" [(value)]="selectedValue.zakonskaPodlaga">
+  </esk-zakon-autocomplete>
+
+  <mat-form-field>
+    <input matInput placeholder="Enota *" name="enota" #enota="ngModel"
+      [(ngModel)]="selectedValue.enota">
+  </mat-form-field>
+
+  <mat-form-field floatLabel="always">
+    <mat-label>Status aktivnosti</mat-label>
+    <mat-slide-toggle [(ngModel)]="selectedValue.neaktiven">{{selectedValue.neaktiven ? 'Neaktiven' : 'Aktiven'}}
+    </mat-slide-toggle>
+    <textarea matInput hidden></textarea>
+  </mat-form-field>
+  
+  <button mat-flat-button
+    [disabled]="!selectedValue.zascitenProizvod || !selectedValue.zascitenProizvod.shema || !selectedValue.zascitenProizvod.naziv || !selectedValue.zascitenProizvod.shema.naziv"
+    (click)="apply()" class="btn btn-info esk_action_button_table" matTooltip="Shrani obstoječi zapis">
+    <mat-icon>check</mat-icon>
+  </button>
+  <button mat-flat-button (click)="cancel()" class="btn btn-danger esk_action_button_table" matTooltip="Prekliči">
+    <mat-icon>remove</mat-icon>
+  </button>
+</div>
